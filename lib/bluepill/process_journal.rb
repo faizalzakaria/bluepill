@@ -49,8 +49,13 @@ module Bluepill
       clear_atomic_fs_lock(name)
     end
 
-    def clear_all_atomic_fs_locks
-      Dir['.*.lock'].each do |f|
+    def clear_all_atomic_fs_locks(application_name = nil)
+	  if application_name.nil?
+		files = Dir['.*.lock']
+	  else
+	    files = Dir[".*.#{application_name}.lock"]
+	  end
+      files.each do |f|
         System.delete_if_exists(f) if File.directory?(f)
       end
     end

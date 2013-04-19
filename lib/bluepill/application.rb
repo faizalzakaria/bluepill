@@ -118,8 +118,8 @@ module Bluepill
 
     def start_server
       self.kill_previous_bluepill
-      ProcessJournal.kill_all_from_all_journals
-      ProcessJournal.clear_all_atomic_fs_locks
+	  ProcessJournal.kill_all_from_journal(self.name)
+	  ProcessJournal.clear_all_atomic_fs_locks(self.name)
       ::Process.setpgid(0, 0) rescue Errno::EPERM nil
 
       Daemonize.daemonize unless foreground?
@@ -150,8 +150,8 @@ module Bluepill
     end
 
     def cleanup
-      ProcessJournal.kill_all_from_all_journals
-      ProcessJournal.clear_all_atomic_fs_locks
+	  ProcessJournal.kill_all_from_journal(self.name)
+	  ProcessJournal.clear_all_atomic_fs_locks(self.name)
       begin
         System.delete_if_exists(self.socket.path) if self.socket
       rescue IOError
