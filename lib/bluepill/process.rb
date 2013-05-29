@@ -318,7 +318,10 @@ module Bluepill
         logger.warning "Executing stop command: #{cmd}"
 
         with_timeout(stop_grace_time, "stop") do
-          result = System.execute_blocking(cmd, self.system_command_options)
+
+			logger.warning "VIC starting: System.execute_blocking(cmd, self.system_command_options)"
+			result = System.execute_blocking(cmd, self.system_command_options)
+			logger.warning "VIC finished: System.execute_blocking(cmd, self.system_command_options)"
 
           unless result[:exit_code].zero?
             logger.warning "Stop command execution returned non-zero exit code:"
