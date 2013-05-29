@@ -225,23 +225,35 @@ module Bluepill
 				vic_nasty_logger("::Process.waitpid(pid) -- end")
 
 				# collect stdout, stderr and exitcode
-				result = {
-					:stdout => cmd_out_read.read,
-					:stderr => cmd_err_read.read,
-					:exit_code => $?.exitstatus
-				}
+				result = {}
+
+				vic_nasty_logger("result[:stdout] = cmd_out_read.read")
+				result[:stdout] = cmd_out_read.read
+				vic_nasty_logger("result[:stderr] = cmd_err_read.read")
+				result[:stderr] = cmd_err_read.read
+				vic_nasty_logger("result[:exit_code] = $?.exitstatus")
+				result[:exit_code] = $?.exitstatus
 
 				# We're done with these ends of the pipes as well
+				vic_nasty_logger("cmd_out_read.close")
 				cmd_out_read.close
+				vic_nasty_logger("cmd_err_read.close")
 				cmd_err_read.close
 
 				# Time to tell the parent about what went down
+				vic_nasty_logger("wr.write Marshal.dump(result)")
 				wr.write Marshal.dump(result)
+				vic_nasty_logger("wr.close")
 				wr.close
 
-				exit
 				vic_nasty_logger("exit")
+				exit
+
+				vic_nasty_logger("FINISHED")
+
 			end
+
+			vic_nasty_logger("exiting: execute_blocking: cmd == #{cmd}")
 		end
 
 		def store
