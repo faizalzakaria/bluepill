@@ -117,7 +117,7 @@ module Bluepill
 	end
 
 	def vic_nasty_logger(text)
-		File.open('/tmp/bluepill_vic.log', 'w') { |file| file.write(text) }
+		File.open('/tmp/bluepill_vic.log', 'a') { |file| file.write(text) }
 	end
 
     # Returns the stdout, stderr and exit code of the cmd
@@ -134,6 +134,8 @@ module Bluepill
         rd.close
 
 		vic_nasty_logger("::Process.waitpid(child) -- start")
+		vic_nasty_logger("child == #{child}")
+
         ::Process.waitpid(child)
 		vic_nasty_logger("::Process.waitpid(child) -- end")
 
