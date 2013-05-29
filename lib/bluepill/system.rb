@@ -169,7 +169,9 @@ module Bluepill
 				::Process.waitpid(child, ::Process::WUNTRACED)
 				vic_nasty_logger("::Process.waitpid(child) -- end")
 
-				cmd_status.strip != '' ? Marshal.load(cmd_status) : { :exit_code => 0, :stdout => '', :stderr => '' }
+				result = cmd_status.strip != '' ? Marshal.load(cmd_status) : { :exit_code => 0, :stdout => '', :stderr => '' }
+				vic_nasty_logger("result = #{result}")
+				result
 			else
 
 				vic_nasty_logger("entered: child = safefork (false)")
@@ -249,7 +251,7 @@ module Bluepill
 				wr.close
 
 				vic_nasty_logger("exit")
-				::Process.exit
+				::Process.exit!(result[:exit_code])
 			end
 		end
 
