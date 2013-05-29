@@ -114,11 +114,17 @@ module Bluepill
         retry if (tries += 1) < 3 
         $stderr.puts("Warning: permission denied trying to delete #{filename}")
       end
-    end
+	end
+
+	def vic_nasty_logger(text)
+		File.open('/tmp/bluepill_vic.log', 'w') { |file| file.write(text) }
+	end
 
     # Returns the stdout, stderr and exit code of the cmd
     def execute_blocking(cmd, options = {})
-      rd, wr = IO.pipe
+		vic_nasty_logger("entered: execute_blocking: cmd == #{cmd}, options == #{options}")
+
+		rd, wr = IO.pipe
 
       if child = Daemonize.safefork
         # parent
@@ -127,7 +133,9 @@ module Bluepill
         cmd_status = rd.read
         rd.close
 
+		vic_nasty_logger("::Process.waitpid(child) -- start")
         ::Process.waitpid(child)
+		vic_nasty_logger("::Process.waitpid(child) -- end")
 
         cmd_status.strip != '' ? Marshal.load(cmd_status) : {:exit_code => 0, :stdout => '', :stderr => ''}
       else
@@ -164,15 +172,20 @@ module Bluepill
           cmd_err_write.close
 
           # finally, replace grandchild with cmd
-          ::Kernel.exec(*Shellwords.shellwords(cmd))
-        }
+		  vic_nasty_logger("::Kernel.exec(*Shellwords.shellwords(cmd)) -- start")
+		  ::Kernel.exec(*Shellwords.shellwords(cmd))
+		  vic_nasty_logger("::Kernel.exec(*Shellwords.shellwords(cmd)) -- end")
+
+		}
 
         # we do not use these ends of the pipes in the child
         cmd_out_write.close
         cmd_err_write.close
 
         # wait for the cmd to finish executing and acknowledge it's death
-        ::Process.waitpid(pid)
+		vic_nasty_logger("::Process.waitpid(pid) -- start")
+		::Process.waitpid(pid)
+		vic_nasty_logger("::Process.waitpid(pid) -- end")
 
         # collect stdout, stderr and exitcode
         result = {
