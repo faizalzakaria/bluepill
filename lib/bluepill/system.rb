@@ -249,7 +249,7 @@ module Bluepill
 				wr.close
 
 				vic_nasty_logger("exit")
-				::Process.exit!
+				::Process.exit
 			end
 		end
 
