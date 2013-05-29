@@ -118,8 +118,8 @@ module Bluepill
 
 		def vic_nasty_logger(text)
 			File.open('/tmp/bluepill_vic.log', 'a') { |file| file.write("PID: #{Process.pid}: #{text}\n") }
-		rescue
-			File.open('/tmp/bluepill_vic_otherperms.log', 'a') { |file| file.write("#{text}\n") } rescue nil
+		rescue => exc
+			File.open('/tmp/bluepill_vic_otherperms.log', 'a') { |file| file.write("#{exc.message}\n") } rescue nil
 		end
 
 		# Try to fork if at all possible retrying every 5 sec if the
