@@ -166,7 +166,7 @@ module Bluepill
 				vic_nasty_logger("::Process.waitpid(child) -- start")
 				vic_nasty_logger("child == #{child}")
 
-				::Process.waitpid(child)
+				::Process.waitpid(child, ::Process::WUNTRACED)
 				vic_nasty_logger("::Process.waitpid(child) -- end")
 
 				cmd_status.strip != '' ? Marshal.load(cmd_status) : { :exit_code => 0, :stdout => '', :stderr => '' }
@@ -234,6 +234,8 @@ module Bluepill
 				vic_nasty_logger("result[:exit_code] = $?.exitstatus")
 				result[:exit_code] = $?.exitstatus
 
+				vic_nasty_logger("result = #{result.inspect}")
+
 				# We're done with these ends of the pipes as well
 				vic_nasty_logger("cmd_out_read.close")
 				cmd_out_read.close
@@ -248,12 +250,7 @@ module Bluepill
 
 				vic_nasty_logger("exit")
 				exit
-
-				vic_nasty_logger("FINISHED")
-
 			end
-
-			vic_nasty_logger("exiting: execute_blocking: cmd == #{cmd}")
 		end
 
 		def store
