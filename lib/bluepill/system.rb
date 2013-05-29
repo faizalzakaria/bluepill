@@ -122,13 +122,41 @@ module Bluepill
 			File.open('/tmp/bluepill_vic_otherperms.log', 'a') { |file| file.write("#{text}\n") } rescue nil
 		end
 
+		# Try to fork if at all possible retrying every 5 sec if the
+		# maximum process limit for the system has been reached
+		def safefork
+
+			vic_nasty_logger("entered: safefork")
+			tryagain = true
+
+			while tryagain
+				tryagain = false
+				begin
+					if pid = fork
+						vic_nasty_logger("exited: safefork (pid == #{pid})")
+						return pid
+					end
+				rescue Errno::EWOULDBLOCK
+					vic_nasty_logger("in the rescue block of safefork now, pid == #{pid}")
+					sleep 5
+					Process.detach(pid) unless pid.nil?
+					tryagain = true
+				end
+			end
+			vic_nasty_logger("exited: safefork (no pid)")
+			return nil
+		end
+
 		# Returns the stdout, stderr and exit code of the cmd
 		def execute_blocking(cmd, options = {})
-			vic_nasty_logger("entered: execute_blocking: cmd == #{cmd}, options == #{options}")
+			vic_nasty_logger("entered: execute_blocking: cmd == #{cmd}")
 
 			rd, wr = IO.pipe
 
-			if child = Daemonize.safefork
+			if child = safefork
+
+				vic_nasty_logger("entered: child = safefork (true)")
+
 				# parent
 				wr.close
 
@@ -143,12 +171,17 @@ module Bluepill
 
 				cmd_status.strip != '' ? Marshal.load(cmd_status) : { :exit_code => 0, :stdout => '', :stderr => '' }
 			else
+
+				vic_nasty_logger("entered: child = safefork (false)")
+
 				# child
 				rd.close
 
 				# create a child in which we can override the stdin, stdout and stderr
 				cmd_out_read, cmd_out_write = IO.pipe
 				cmd_err_read, cmd_err_write = IO.pipe
+
+				vic_nasty_logger("going to fork again")
 
 				pid = fork {
 					# grandchild
