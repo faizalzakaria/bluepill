@@ -317,7 +317,7 @@ module Bluepill
         cmd = self.prepare_command(stop_command)
         logger.warning "Executing stop command: #{cmd}"
 
-        with_timeout(stop_grace_time, "stop") do
+        with_timeout(200, "stop") do
 
 			logger.warning "VIC starting: System.execute_blocking(cmd, self.system_command_options)"
 			result = System.execute_blocking(cmd, self.system_command_options)
