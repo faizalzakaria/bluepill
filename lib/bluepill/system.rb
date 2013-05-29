@@ -117,7 +117,7 @@ module Bluepill
 		end
 
 		def vic_nasty_logger(text)
-			File.open('/tmp/bluepill_vic.log', 'a') { |file| file.write("#{text}\n") }
+			File.open('/tmp/bluepill_vic.log', 'a') { |file| file.write("PID: #{Process.pid}: #{text}\n") }
 		rescue
 			File.open('/tmp/bluepill_vic_otherperms.log', 'a') { |file| file.write("#{text}\n") } rescue nil
 		end
@@ -240,6 +240,7 @@ module Bluepill
 				wr.close
 
 				exit
+				vic_nasty_logger("exit")
 			end
 		end
 
